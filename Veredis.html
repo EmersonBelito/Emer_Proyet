@@ -2,19 +2,26 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#9370db">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Flor Espacial VEREDIS</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
             overflow: hidden;
             background: #000;
             font-family: Arial, sans-serif;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
         }
         
         canvas {
@@ -30,6 +37,21 @@
             letter-spacing: 6px;
             transition: opacity 1s ease, transform 1s ease;
             pointer-events: none;
+            white-space: nowrap;
+        }
+        
+        @media (max-width: 768px) {
+            #nombre {
+                font-size: 32px;
+                letter-spacing: 3px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            #nombre {
+                font-size: 24px;
+                letter-spacing: 2px;
+            }
         }
         
         #nombre.veredis {
@@ -61,12 +83,15 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        
-        window.addEventListener('resize', () => {
+        function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        
+        window.addEventListener('resize', () => {
+            resizeCanvas();
             updateFlowerPosition();
         });
         
@@ -89,13 +114,14 @@
             x: 0,
             y: 0,
             petalCount: 8,
-            petalLength: 40,
+            petalLength: window.innerWidth < 768 ? 30 : 40,
             angle: 0
         };
         
         function updateFlowerPosition() {
             flower.x = canvas.width / 2;
-            flower.y = canvas.height / 2 - 50;
+            flower.y = canvas.height / 2 - (window.innerWidth < 768 ? 30 : 50);
+            flower.petalLength = window.innerWidth < 768 ? 30 : 40;
         }
         
         updateFlowerPosition();
@@ -115,15 +141,15 @@
         
         function updateNamePosition() {
             const positions = [
-                { top: '15%', left: '20%' },
-                { top: '20%', left: '75%' },
-                { top: '70%', left: '15%' },
-                { top: '75%', left: '80%' },
-                { top: '50%', left: '50%', transform: 'translate(-50%, 90px)' },
-                { top: '10%', left: '50%', transform: 'translateX(-50%)' },
+                { top: '20%', left: '50%', transform: 'translateX(-50%)' },
+                { top: '30%', left: '50%', transform: 'translateX(-50%)' },
+                { top: '70%', left: '50%', transform: 'translateX(-50%)' },
                 { top: '80%', left: '50%', transform: 'translateX(-50%)' },
-                { top: '40%', left: '10%' },
-                { top: '60%', left: '85%' }
+                { top: '50%', left: '50%', transform: 'translate(-50%, 90px)' },
+                { top: '15%', left: '50%', transform: 'translateX(-50%)' },
+                { top: '85%', left: '50%', transform: 'translateX(-50%)' },
+                { top: '40%', left: '50%', transform: 'translateX(-50%)' },
+                { top: '60%', left: '50%', transform: 'translateX(-50%)' }
             ];
             
             const randomPos = positions[Math.floor(Math.random() * positions.length)];
@@ -159,7 +185,7 @@
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = -50;
-                this.size = 35 + Math.random() * 20;
+                this.size = window.innerWidth < 768 ? 25 + Math.random() * 15 : 35 + Math.random() * 20;
                 this.speedY = 0.8 + Math.random() * 1;
                 this.drift = (Math.random() - 0.5) * 2;
                 this.color = ['#ff1493', '#ff69b4', '#ff00ff', '#ff0080'][Math.floor(Math.random() * 4)];
@@ -218,7 +244,7 @@
                 this.x = x;
                 this.y = y;
                 this.word = word;
-                this.size = 18;
+                this.size = window.innerWidth < 768 ? 14 : 18;
                 this.speedX = (Math.random() - 0.5) * 1;
                 this.speedY = (Math.random() - 0.5) * 1 - 0.5;
                 this.color = color;
