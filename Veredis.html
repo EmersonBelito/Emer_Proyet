@@ -2,402 +2,529 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#9370db">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Flor Espacial VEREDIS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feliz Año Nuevo - Veredis Sofia</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            overflow: hidden;
-            background: #000;
-            font-family: Arial, sans-serif;
-            position: fixed;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 20px;
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        header {
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        header h1 {
+            font-size: 2rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        #contenido {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
             width: 100%;
-            height: 100%;
-            touch-action: none;
+            max-width: 90%;
+            margin-top: 20px;
         }
-        
-        canvas {
-            display: block;
+
+        #currentSong {
+            font-size: 1.3rem;
+            margin: 10px 0;
+            color: #ffd700;
         }
-        
-        #nombre {
-            position: absolute;
-            z-index: 10;
-            font-size: 56px;
+
+        #countdown {
+            font-size: 3.2rem;
             font-weight: bold;
-            font-family: 'Georgia', 'Brush Script MT', cursive, serif;
-            letter-spacing: 6px;
-            transition: opacity 1s ease, transform 1s ease;
-            pointer-events: none;
-            white-space: nowrap;
+            margin: 20px 0;
+            letter-spacing: 3px;
+            text-shadow: 0 0 15px rgba(255,255,255,0.4);
         }
-        
+
+        #letra, #frase, #pregunta {
+            white-space: pre-wrap;
+            line-height: 1.7;
+            font-size: 1.5rem;
+            margin: 20px auto;
+            max-width: 95%;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+        }
+
+        .botones-inferiores {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px 15px 0 0;
+            margin-top: auto;
+        }
+
+        button {
+            padding: 14px 20px;
+            font-size: 1rem;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s;
+            min-width: 140px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        button:hover { transform: scale(1.08); }
+        button:active { transform: scale(0.95); }
+
+        #btnPlay.reproduciendo {
+            background: #28a745 !important;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+        }
+
+        /* Modal general */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-contenido {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            animation: aparecer 1s ease-out;
+            border: 2px solid #ffd700;
+        }
+
+        @keyframes aparecer {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-contenido h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            color: #ffd700;
+        }
+
+        .modal-contenido p {
+            font-size: 1.7rem;
+            line-height: 1.8;
+            margin: 15px 0;
+        }
+
+        .modal-contenido strong {
+            font-size: 2rem;
+            color: #ff6b6b;
+        }
+
+        .modal-botones {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        /* Responsivo */
         @media (max-width: 768px) {
-            #nombre {
-                font-size: 32px;
-                letter-spacing: 3px;
-            }
+            header h1 { font-size: 1.8rem; }
+            #countdown { font-size: 2.6rem; }
+            #letra, #frase, #pregunta { font-size: 1.4rem; }
+            .modal-contenido { padding: 25px; }
+            .modal-contenido h2 { font-size: 2rem; }
+            .modal-contenido p { font-size: 1.5rem; }
         }
-        
+
         @media (max-width: 480px) {
-            #nombre {
-                font-size: 24px;
-                letter-spacing: 2px;
-            }
-        }
-        
-        #nombre.veredis {
-            color: #e6e6fa;
-            text-shadow: 
-                0 0 10px #9370db,
-                0 0 20px #8a2be2,
-                0 0 30px #9400d3,
-                0 0 40px #ba55d3,
-                0 0 50px #9370db;
-        }
-        
-        #nombre.sofia {
-            color: #ffe6f0;
-            text-shadow: 
-                0 0 10px #ff1493,
-                0 0 20px #ff69b4,
-                0 0 30px #ff00ff,
-                0 0 40px #ff1493,
-                0 0 50px #ff69b4;
+            #countdown { font-size: 2.2rem; }
+            header h1 { font-size: 1.6rem; }
+            .botones-inferiores { flex-direction: column; padding: 15px; }
+            button { width: 85%; max-width: 300px; }
+            .modal-contenido p { font-size: 1.4rem; }
+            .modal-contenido strong { font-size: 1.8rem; }
         }
     </style>
 </head>
-<body>
-    <canvas id="canvas"></canvas>
-    <div id="nombre" class="veredis">VEREDIS</div>
-    
+<body onload="iniciarConteo()">
+
+    <header>
+        <h1>¡Feliz Año Nuevo 2026!</h1>
+    </header>
+
+    <div id="contenido">
+        <div id="currentSong">Canción actual: Ninguna</div>
+        <div id="countdown"></div>
+        <div id="letra"></div>
+        <div id="frase"></div>
+        <div id="pregunta"></div>
+    </div>
+
+    <div class="botones-inferiores">
+        <button id="btnPlay">▶ Elegir Música</button>
+        <button id="btnPregunta">¿Te gusta la música?</button>
+        <button id="btnFrase">Frase Aleatoria</button>
+        <button id="btnWhatsApp">📱 Enviar por WhatsApp</button>
+    </div>
+
+    <audio id="musica" preload="auto"></audio>
+
+    <!-- Popup de Feliz Año Nuevo -->
+    <div id="modalSorpresa" class="modal">
+        <div class="modal-contenido">
+            <h2>¡FELIZ AÑO NUEVO! 🎉</h2>
+            <p>CONOCERTE FUE HERMOSO AUNQUE NO LLEGUEMOS A NADA</p>
+            <p>FUE MUY LINDO COMPARTIR MOMENTOS CON TU PERSONA,</p>
+            <p>ESTE AÑO 2026 ESPERO QUE CUMPLAS TODAS TUS METAS ❤️</p>
+            <br>
+            <strong>FELIZ AÑO 2026 VEREDIS SOFIA ☺</strong>
+            <div class="modal-botones">
+                <button id="btnCerrarSorpresa">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Otros modales (música, pregunta, whatsapp) -->
+    <div id="modalCancion" class="modal">
+        <div class="modal-contenido">
+            <h2>🎵 Elige una canción</h2>
+            <select id="seleccionCancion">
+                <option value="destino">Destino o Casualidad - Melendi</option>
+                <option value="besos">Besos en Guerra - Morat</option>
+                <option value="quedare">Me Quedaré Solo - Amistades Peligrosas</option>
+            </select>
+            <div class="modal-botones">
+                <button id="btnReproducirOk">Reproducir</button>
+                <button id="btnCancelarCancion">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalPregunta" class="modal">
+        <div class="modal-contenido">
+            <h2>¿Te gusta la música?</h2>
+            <div class="modal-botones">
+                <button id="btnSi">Sí 😊</button>
+                <button id="btnNo">No 🙂</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalWhatsApp" class="modal">
+        <div class="modal-contenido">
+            <h2>Enviar por WhatsApp</h2>
+            <input type="text" id="mensajeWhatsApp" placeholder="Escribe tu mensaje...">
+            <div class="modal-botones">
+                <button id="btnEnviarWA">Enviar</button>
+                <button id="btnCancelarWA">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        
-        resizeCanvas();
-        
-        window.addEventListener('resize', () => {
-            resizeCanvas();
-            updateFlowerPosition();
-        });
-        
-        // Estrellas del espacio
-        const stars = [];
-        for (let i = 0; i < 200; i++) {
-            stars.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                size: Math.random() * 2,
-                color: ['#fff', '#ffd700', '#87ceeb', '#ff69b4', '#9370db'][Math.floor(Math.random() * 5)],
-                twinkle: Math.random() * Math.PI * 2,
-                speedX: (Math.random() - 0.5) * 0.3,
-                speedY: (Math.random() - 0.5) * 0.3
-            });
-        }
-        
-        // Flor (se actualizará en el resize)
-        const flower = {
-            x: 0,
-            y: 0,
-            petalCount: 8,
-            petalLength: window.innerWidth < 768 ? 30 : 40,
-            angle: 0
+        const audio = document.getElementById('musica');
+        const currentSongDiv = document.getElementById('currentSong');
+        const letraDiv = document.getElementById('letra');
+        const fraseDiv = document.getElementById('frase');
+        const preguntaDiv = document.getElementById('pregunta');
+        const countdownDiv = document.getElementById('countdown');
+        const modalSorpresa = document.getElementById('modalSorpresa');
+        const btnPlay = document.getElementById('btnPlay');
+        const btnFrase = document.getElementById('btnFrase');
+
+        let cancionActual = null;
+        let coloresFrase = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#fd79a8'];
+        let indiceColor = 0;
+
+        const canciones = {
+            destino: { nombre: "Destino o Casualidad - Melendi ft. Ha*Ash", src: "destino.mp3" },
+            besos: { nombre: "Besos en Guerra - Morat ft. Juanes", src: "besos.mp3" },
+            quedare: { nombre: "Me Quedaré Solo - Amistades Peligrosas", src: "quedare.mp3" }
         };
-        
-        function updateFlowerPosition() {
-            flower.x = canvas.width / 2;
-            flower.y = canvas.height / 2 - (window.innerWidth < 768 ? 30 : 50);
-            flower.petalLength = window.innerWidth < 768 ? 30 : 40;
-        }
-        
-        updateFlowerPosition();
-        
-        // Corazones cayendo
-        const hearts = [];
-        const particles = [];
-        
-        // Poema
-        const poem = "Tienes en la mirada un universo, un mapa de promesas y de calma, donde cada palabra se hace verso y cada gesto se me enreda en el alma".split(' ');
-        let poemIndex = 0;
-        
-        // Animación del nombre VEREDIS y SOFIA
-        const nombreEl = document.getElementById('nombre');
-        let nameVisible = true;
-        let currentName = 'VEREDIS';
-        
-        function updateNamePosition() {
-            const positions = [
-                { top: '20%', left: '50%', transform: 'translateX(-50%)' },
-                { top: '30%', left: '50%', transform: 'translateX(-50%)' },
-                { top: '70%', left: '50%', transform: 'translateX(-50%)' },
-                { top: '80%', left: '50%', transform: 'translateX(-50%)' },
-                { top: '50%', left: '50%', transform: 'translate(-50%, 90px)' },
-                { top: '15%', left: '50%', transform: 'translateX(-50%)' },
-                { top: '85%', left: '50%', transform: 'translateX(-50%)' },
-                { top: '40%', left: '50%', transform: 'translateX(-50%)' },
-                { top: '60%', left: '50%', transform: 'translateX(-50%)' }
-            ];
-            
-            const randomPos = positions[Math.floor(Math.random() * positions.length)];
-            nombreEl.style.top = randomPos.top;
-            nombreEl.style.left = randomPos.left;
-            nombreEl.style.transform = randomPos.transform || 'translate(0, 0)';
-        }
-        
-        function animateName() {
-            if (nameVisible) {
-                nombreEl.style.opacity = '0';
-                nameVisible = false;
-                setTimeout(() => {
-                    // Alternar entre VEREDIS y SOFIA
-                    currentName = currentName === 'VEREDIS' ? 'SOFIA' : 'VEREDIS';
-                    nombreEl.textContent = currentName;
-                    nombreEl.className = currentName.toLowerCase();
-                    updateNamePosition();
-                    setTimeout(() => {
-                        nombreEl.style.opacity = '1';
-                        nameVisible = true;
-                    }, 500);
-                }, 1000);
-            }
-        }
-        
-        nombreEl.textContent = currentName;
-        nombreEl.className = 'veredis';
-        updateNamePosition();
-        setInterval(animateName, 4000);
-        
-        class Heart {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = -50;
-                this.size = window.innerWidth < 768 ? 25 + Math.random() * 15 : 35 + Math.random() * 20;
-                this.speedY = 0.8 + Math.random() * 1;
-                this.drift = (Math.random() - 0.5) * 2;
-                this.color = ['#ff1493', '#ff69b4', '#ff00ff', '#ff0080'][Math.floor(Math.random() * 4)];
-            }
-            
-            update() {
-                this.y += this.speedY;
-                this.x += this.drift;
-            }
-            
-            draw() {
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                
-                // Corazón más redondeado
-                const x = this.x;
-                const y = this.y;
-                const s = this.size;
-                
-                ctx.moveTo(x, y + s * 0.3);
-                ctx.bezierCurveTo(x, y - s * 0.1, x - s * 0.5, y - s * 0.4, x - s * 0.5, y);
-                ctx.bezierCurveTo(x - s * 0.5, y + s * 0.2, x - s * 0.3, y + s * 0.4, x, y + s * 0.7);
-                ctx.bezierCurveTo(x + s * 0.3, y + s * 0.4, x + s * 0.5, y + s * 0.2, x + s * 0.5, y);
-                ctx.bezierCurveTo(x + s * 0.5, y - s * 0.4, x, y - s * 0.1, x, y + s * 0.3);
-                
-                ctx.fill();
-            }
-            
-            checkCollision() {
-                // Colisión con flor
-                const distFlower = Math.hypot(this.x - flower.x, this.y - flower.y);
-                if (distFlower < 100) return 'flower';
-                
-                // Colisión con nombre
-                const nameEl = document.getElementById('nombre');
-                const nameRect = nameEl.getBoundingClientRect();
-                if (this.x > nameRect.left && this.x < nameRect.right && 
-                    this.y > nameRect.top && this.y < nameRect.bottom) {
-                    return 'name';
+
+        const letras = {
+            destino: `[Destino o Casualidad - Melendi ft. Ha*Ash]
+
+Ella iba caminando sola por la calle
+Pensando: "Dios, qué complicado es esto del amor"
+Se preguntó a sí misma cuál habría sido el detalle
+Que seguro Cupido malinterpretó
+
+Él daba como cada noche vueltas en la cama
+Sonó de pronto una canción romántica en la radio
+Quizá fue Michael Bolton quien metió el dedo en la llaga
+Y como le faltaba el sueño, fue a buscarlo
+
+Los dos estaban caminando en el mismo sentido
+Y no hablo de la dirección errante de sus pasos
+Él la miró, ella contestó con un suspiro
+Y el universo conspiró para abrazarlos
+
+Durante todo el tiempo que yo tanto te busqué
+Ella le contestó: "Lo siento, es que estuve ocupada
+Aunque para serte sincera, ahora no entiendo en qué"
+
+La noche se hizo día, pero no se fue la luna
+Se quedó a verlos apoyada en el hombro del sol
+Alúmbrales con fuerza, brilla todo el día
+Y cuando llegue la noche, yo sellaré su pasión
+
+Dos extraños bailando bajo la luna
+Se convierten en amantes al compás
+De esa extraña melodía
+Que algunos llaman destino
+Y otros prefieren llamar casualidad
+
+Dos extraños bailando bajo la luna
+Se convierten en amantes al compás
+De esa extraña melodía
+Que algunos llaman destino
+Y otros prefieren llamar casualidad`,
+
+            besos: `[Besos en Guerra - Morat ft. Juanes]
+
+¿Quién te dijo esa mentira?
+Que eras fácil de olvidar
+No hagas caso a tus amigos
+Sólo son testigos de la otra mitad
+
+Dos besos son demasiado
+Y un beso no bastará
+Y aunque adviertan al soldado
+Si está enamorado, en guerra morirá
+
+Ya no tienes que cuidarme
+Porque yo siempre he sabido que tus besos matan
+Que tus promesas riman con dolor
+Que eres experta en robarle latidos a mi corazón
+
+Y tú nunca juraste que saldría ileso
+Ya no te atrevas a pedir perdón
+Yo te confieso que no me arrepiento
+Y aunque estoy sufriendo, podría estar peor
+
+Oh-oh-oh
+Sabiendo que tus besos matan, moriré de amor
+Oh-oh-oh
+Sabiendo que tus besos matan, moriré de amor
+Oh-oh-oh
+Sabiendo que tus besos matan...
+
+Para mí nunca fue un juego
+Para ti fue un beso más
+Y si hoy vuelves a mi vida
+No es que estés perdida, no es casualidad
+
+Ya no tienes que cuidarme
+Porque yo siempre he sabido que tus besos matan
+Que tus promesas riman con dolor
+Que eres experta en robarle latidos a mi corazón
+
+Y tú nunca juraste que saldría ileso
+Ya no te atrevas a pedir perdón
+Yo te confesso que no me arrepiento
+Y aunque estoy sufriendo, podría estar peor
+
+Oh-oh-oh
+Sabiendo que tus besos matan, moriré de amor
+Oh-oh-oh
+Sabiendo que tus besos matan, moriré de amor
+
+Ganaré la guerra para conquistarte
+No quiero admitir que te vas, que te vas
+Ganaré la guerra para conquistarte
+No quiero admitir que te vas, que te vas
+
+Yo perdí batallas por nunca aceptar
+Que no eras fácil de olvidar`,
+
+            quedare: `[Me Quedaré Solo - Amistades Peligrosas]
+
+Gritar "¿quién?" o "¿cuál?"
+Ahora da igual
+Te juro da igual
+Que hagas bien o mal
+Si es que al final
+La gente se va y estás
+
+A ti, ¿qué puedes arreglar mi vida?
+Capaz como eres de ser día a día, día a día
+
+Tía, sin tu alegría seré un pringao
+Yo no me merezco la pena
+Tía, sin tu valía caeré en picao
+Me quedaré solo
+Me quedaré solo
+Me quedaré solo
+
+Sabes bien, tal vez no pueda cambiar
+No vaya a cambiar jamás
+Caer bien o mal
+Se acerca el final, mi triste final
+
+Y tú, que ansías controlar mi vida
+La paz con guerras son mi día a día, día a día
+
+Tía, sin tu alegría seré un pringao
+Yo no me merezco la pena
+Tía, sin tu valía caeré en picao
+Me quedaré solo
+Me quedaré solo
+Me quedaré solo
+
+Si un día sin tu alegría seré un pringao
+Me quedaré solo
+Si un día sin tu valía caeré en picao
+Me quedaré solo
+Me quedaré solo
+Me quedaré solo`
+        };
+
+        const frases = [
+            "el que vive confiado muere traicionado y el que vive enamorado muere ilucionado",
+            "todos somo vilanos en historias mal contadas",
+            "tu corazon es libre ten el valor de hacerle caso",
+            "como te trata una persona es exactamente el reflejo de lo que siente por ti no hagas preguntas obaseva",
+            "amar a alguien es una cosa que alguien te ame es otra pero que te ame la misma perosna que amas lo es todo"
+        ];
+
+        function iniciarConteo() {
+            const nuevoAno = new Date(2026, 0, 1); // 1 enero 2026
+            const intervalo = setInterval(() => {
+                const ahora = new Date();
+                const diferencia = nuevoAno - ahora;
+
+                if (diferencia <= 0) {
+                    clearInterval(intervalo);
+                    countdownDiv.textContent = '';
+                    modalSorpresa.style.display = 'flex'; // Muestra el popup
+                    if (cancionActual) audio.play(); // Reproduce música si hay una seleccionada
+                    return;
                 }
-                
-                // Colisión con otros corazones
-                for (let other of hearts) {
-                    if (other !== this) {
-                        const dist = Math.hypot(this.x - other.x, this.y - other.y);
-                        if (dist < this.size + other.size) return 'heart';
-                    }
-                }
-                
-                return false;
-            }
+
+                const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
+                const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
+                const segundos = Math.floor((diferencia % (1000 * 60)) / 1000);
+
+                countdownDiv.innerHTML = `${dias}<small>d</small> ${horas.toString().padStart(2,'0')}<small>h</small><br>
+                                          ${minutos.toString().padStart(2,'0')}<small>m</small> ${segundos.toString().padStart(2,'0')}<small>s</small>`;
+            }, 1000);
         }
-        
-        class Particle {
-            constructor(x, y, color, word) {
-                this.x = x;
-                this.y = y;
-                this.word = word;
-                this.size = window.innerWidth < 768 ? 14 : 18;
-                this.speedX = (Math.random() - 0.5) * 1;
-                this.speedY = (Math.random() - 0.5) * 1 - 0.5;
-                this.color = color;
-                this.life = 4000;
-                this.birthTime = Date.now();
-                this.rotation = Math.random() * Math.PI * 2;
-                this.rotationSpeed = (Math.random() - 0.5) * 0.05;
+
+        // Cerrar popup de sorpresa
+        document.getElementById('btnCerrarSorpresa').addEventListener('click', () => {
+            modalSorpresa.style.display = 'none';
+        });
+
+        // Resto de funciones (música, frases, etc.) igual que antes...
+        btnPlay.addEventListener('click', () => {
+            if (audio.paused) {
+                document.getElementById('modalCancion').style.display = 'flex';
+            } else {
+                audio.pause();
+                reiniciarBotonMusica();
             }
-            
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                this.speedY += 0.03;
-                this.rotation += this.rotationSpeed;
-            }
-            
-            draw() {
-                const age = Date.now() - this.birthTime;
-                const alpha = 1 - (age / this.life);
-                
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.rotate(this.rotation);
-                ctx.globalAlpha = alpha;
-                ctx.fillStyle = this.color;
-                ctx.strokeStyle = '#fff';
-                ctx.lineWidth = 1;
-                ctx.font = 'bold ' + this.size + 'px Georgia, serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.strokeText(this.word, 0, 0);
-                ctx.fillText(this.word, 0, 0);
-                ctx.restore();
-                
-                ctx.globalAlpha = 1;
-            }
-            
-            isDead() {
-                return Date.now() - this.birthTime > this.life;
-            }
+        });
+
+        document.getElementById('btnReproducirOk').addEventListener('click', () => {
+            const seleccion = document.getElementById('seleccionCancion').value;
+            cancionActual = seleccion;
+            audio.src = canciones[cancionActual].src;
+            audio.play();
+            currentSongDiv.textContent = "Canción actual: " + canciones[cancionActual].nombre;
+            letraDiv.textContent = letras[cancionActual];
+            btnPlay.textContent = "Cambiar Música";
+            btnPlay.classList.add('reproduciendo');
+            document.getElementById('modalCancion').style.display = 'none';
+        });
+
+        document.getElementById('btnCancelarCancion').addEventListener('click', () => {
+            document.getElementById('modalCancion').style.display = 'none';
+        });
+
+        function reiniciarBotonMusica() {
+            btnPlay.textContent = "▶ Elegir Música";
+            btnPlay.classList.remove('reproduciendo');
+            currentSongDiv.textContent = "Canción actual: Ninguna";
+            letraDiv.textContent = "";
+            cancionActual = null;
         }
-        
-        function explodeHeart(heart, collisionType) {
-            if (collisionType === 'flower') {
-                const word = poem[poemIndex % poem.length];
-                poemIndex++;
-                particles.push(new Particle(heart.x, heart.y, heart.color, word));
-            }
+
+        document.getElementById('btnPregunta').addEventListener('click', () => {
+            limpiarPantallaExceptoConteo();
+            if (audio.paused && cancionActual) audio.play();
+            document.getElementById('modalPregunta').style.display = 'flex';
+        });
+
+        document.getElementById('btnSi').addEventListener('click', () => {
+            preguntaDiv.textContent = "¡Qué bueno! 😍 Sigue disfrutando";
+            document.getElementById('modalPregunta').style.display = 'none';
+        });
+
+        document.getElementById('btnNo').addEventListener('click', () => {
+            preguntaDiv.textContent = "¡No hay problema! Cada quien sus gustos 🙂";
+            document.getElementById('modalPregunta').style.display = 'none';
+        });
+
+        btnFrase.addEventListener('click', () => {
+            limpiarPantallaExceptoConteo();
+            const fraseAleatoria = frases[Math.floor(Math.random() * frases.length)];
+            fraseDiv.textContent = fraseAleatoria;
+            indiceColor = (indiceColor + 1) % coloresFrase.length;
+            btnFrase.style.background = coloresFrase[indiceColor];
+        });
+
+        document.getElementById('btnWhatsApp').addEventListener('click', () => {
+            document.getElementById('modalWhatsApp').style.display = 'flex';
+        });
+
+        document.getElementById('btnEnviarWA').addEventListener('click', () => {
+            const mensaje = document.getElementById('mensajeWhatsApp').value.trim();
+            if (mensaje === "") return alert("Escribe un mensaje");
+            const url = `https://wa.me/51925449328?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, '_blank');
+            document.getElementById('modalWhatsApp').style.display = 'none';
+            document.getElementById('mensajeWhatsApp').value = "";
+        });
+
+        document.getElementById('btnCancelarWA').addEventListener('click', () => {
+            document.getElementById('modalWhatsApp').style.display = 'none';
+        });
+
+        function limpiarPantallaExceptoConteo() {
+            letraDiv.textContent = '';
+            fraseDiv.textContent = '';
+            preguntaDiv.textContent = '';
         }
-        
-        function drawFlower() {
-            ctx.save();
-            ctx.translate(flower.x, flower.y);
-            
-            // Tallo
-            ctx.strokeStyle = '#228b22';
-            ctx.lineWidth = 5;
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(0, 150);
-            ctx.stroke();
-            
-            // Hojas
-            ctx.fillStyle = '#32cd32';
-            ctx.beginPath();
-            ctx.ellipse(-15, 80, 20, 10, -Math.PI / 4, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.ellipse(15, 110, 20, 10, Math.PI / 4, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Pétalos
-            ctx.rotate(flower.angle);
-            for (let i = 0; i < flower.petalCount; i++) {
-                ctx.rotate((Math.PI * 2) / flower.petalCount);
-                ctx.fillStyle = '#ff1493';
-                ctx.beginPath();
-                ctx.ellipse(0, -flower.petalLength / 2, 15, flower.petalLength / 2, 0, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            
-            // Centro de la flor
-            ctx.rotate(-flower.angle);
-            ctx.fillStyle = '#ffd700';
-            ctx.beginPath();
-            ctx.arc(0, 0, 15, 0, Math.PI * 2);
-            ctx.fill();
-            
-            ctx.restore();
-        }
-        
-        function animate() {
-            ctx.fillStyle = '#000';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Dibujar estrellas del fondo
-            stars.forEach(star => {
-                star.x += star.speedX;
-                star.y += star.speedY;
-                
-                // Wrap around
-                if (star.x < 0) star.x = canvas.width;
-                if (star.x > canvas.width) star.x = 0;
-                if (star.y < 0) star.y = canvas.height;
-                if (star.y > canvas.height) star.y = 0;
-                
-                star.twinkle += 0.05;
-                const alpha = 0.5 + Math.sin(star.twinkle) * 0.5;
-                ctx.globalAlpha = alpha;
-                ctx.fillStyle = star.color;
-                ctx.beginPath();
-                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-                ctx.fill();
-            });
-            ctx.globalAlpha = 1;
-            
-            // Animar flor
-            flower.angle += 0.01;
-            drawFlower();
-            
-            // Crear nuevos corazones
-            if (Math.random() < 0.03) {
-                hearts.push(new Heart());
-            }
-            
-            // Actualizar y dibujar corazones
-            for (let i = hearts.length - 1; i >= 0; i--) {
-                hearts[i].update();
-                hearts[i].draw();
-                
-                const collision = hearts[i].checkCollision();
-                if (collision || hearts[i].y > canvas.height + 50) {
-                    if (hearts[i].y < canvas.height + 50 && collision) {
-                        explodeHeart(hearts[i], collision);
-                    }
-                    hearts.splice(i, 1);
-                }
-            }
-            
-            // Actualizar y dibujar partículas
-            for (let i = particles.length - 1; i >= 0; i--) {
-                particles[i].update();
-                particles[i].draw();
-                
-                if (particles[i].isDead()) {
-                    particles.splice(i, 1);
-                }
-            }
-            
-            requestAnimationFrame(animate);
-        }
-        
-        animate();
     </script>
 </body>
 </html>
